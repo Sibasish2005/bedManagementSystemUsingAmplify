@@ -2,14 +2,14 @@
 
 import { Amplify } from "aws-amplify";
 import outputs from "@/amplify_outputs.json";
-
 Amplify.configure(outputs);
 
 import React, { useState, useEffect } from "react";
 import { generateClient } from "aws-amplify/data";
 import { type Schema } from "@/amplify/data/resource";
+const client = generateClient<Schema>()
 
-const client = generateClient<Schema>();
+
 
 import {
   Card,
@@ -44,7 +44,7 @@ import {
 
 
 export type Bed = Schema["Bed"]["type"];
-// functions :
+
 
 
 
@@ -79,10 +79,10 @@ export default function BedManagement() {
   const [dischargedAt, setDischargedAt] = useState<string | null>(null);
 
   const rooms = [
-    { id: 1, bedNo: "A-101", type: "Private Room", status: "occupied" },
-    { id: 2, bedNo: "B-102", type: "Normal Ward", status: "unoccupied" },
-    { id: 3, bedNo: "B-103", type: "Normal Ward", status: "occupied" },
-    { id: 4, bedNo: "S-104", type: "VIP Room", status: "unoccupied" },
+    { id: 1, bedNo: "A-101", type: "Private Room", status: "Occupied" },
+    { id: 2, bedNo: "B-102", type: "Normal Ward", status: "Unoccupied" },
+    { id: 3, bedNo: "B-103", type: "Normal Ward", status: "Occupied" },
+    { id: 4, bedNo: "S-104", type: "VIP Room", status: "Unoccupied" },
   ];
   const status = [
     { name: "All Beds" },
@@ -184,7 +184,7 @@ export default function BedManagement() {
           </div>
 
           {/* Display Rooms */}
-          <div className="">
+          <div className="hidden">
             <div className="grid grid-cols-[1fr_1fr_2fr_1fr] items-center px-8 py-3 text-white text-xl font-medium mx-4">
               <span className="pl-4">Room No</span>
               <span>Bed No</span>
@@ -252,17 +252,100 @@ export default function BedManagement() {
                           <DialogHeader>
                             <DialogTitle className="text-white">Allocate Bed</DialogTitle>
                             <DialogDescription className="text-gray-400">
-                              Allocate Bed {bed.bedNumber}
-                              to a patientID <Input className="my-4" placeholder="Patient ID" />
-                              <Button className=" bg-purple-600 hover:bg-purple-500 text-white !w-[120px]">
-                                Allocate
-                              </Button>
+                              Allocate Bed {bed.bedNumber} to a patientID
                             </DialogDescription>
                           </DialogHeader>
                           <div className="text-gray-300 space-y-2">
                             <p><span className="font-semibold text-white">Bed No:</span> {bed.bedNumber}</p>
                             <p><span className="font-semibold text-white">Type:</span> {bed.roomtype}</p>
+                            <Input className="my-4" placeholder="Patient ID" />
                           </div>
+                          <Button className=" bg-purple-600 hover:bg-purple-500 text-white !w-[120px]">
+                            Allocate
+                          </Button>
+                        </DialogContent>
+                      </Dialog>
+                    )}
+                  </div>
+                </Card>
+              </div>
+            ))}
+          </div>
+          {/* secondary display for demo */}
+          <div className="">
+            <div className="grid grid-cols-[1fr_1fr_2fr_1fr] items-center px-8 py-3 text-white text-xl font-medium mx-4">
+              <span className="pl-4">Room No</span>
+              <span>Bed No</span>
+              <span>Room Type</span>
+              <span className="text-right pr-4">Actions</span>
+            </div>
+
+
+
+            {rooms.map((room) => (
+              <div key={room.id} className="">
+                <Card className="grid grid-cols-[1fr_1fr_2fr_1fr] items-center bg-white/4 border-none mx-4 my-4 p-4 text-white">
+                  <div className="text-xl flex items-center pl-4">
+                    <p>{room.id}</p>
+                  </div>
+                  <div className="text-xl flex items-center">
+                    <p>{room.bedNo}</p>
+                  </div>
+                  <div className="flex flex-col justify-center">
+                    <p className="text-white text-xl font-semibold">
+                      {room.type}
+                    </p>
+                    <p className="text-gray-400 text-sm capitalize">{room.status === "Occupied" ? "Occupied" : "Unoccupied"}</p>
+                  </div>
+
+                  <div className="flex justify-end pr-4">
+                    {room.status === "Occupied" ? (
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button className=" bg-purple-600 hover:bg-purple-500 text-white !w-[120px]">
+                            View Details
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="bg-[#1C1D3A] border rounded-2xl shadow-2xl p-6 text-slate-100">
+                          <DialogHeader>
+                            <DialogTitle className="text-white">View Details</DialogTitle>
+                            <DialogDescription className="text-gray-400">
+                              Details for Bed {room.bedNo}
+                            </DialogDescription>
+                          </DialogHeader>
+                          <div className="text-gray-300 space-y-2">
+                            <p><span className="font-semibold text-white">Room No:</span> {room.id}</p>
+                            <p><span className="font-semibold text-white">Bed No:</span> {room.bedNo}</p>
+                            <p><span className="font-semibold text-white">Type:</span> {room.type}</p>
+                            <p><span className="font-semibold text-white">Status:</span> {room.status === "Occupied" ? "Occupied" : "Unoccupied"}</p>
+                          </div>
+                          <Button className=" bg-purple-600 hover:bg-purple-500 text-white !w-[120px]">
+                            De-Allocate
+                          </Button>
+                        </DialogContent>
+                      </Dialog>
+                    ) : (
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button className=" bg-purple-600 hover:bg-purple-500 text-white !w-[120px]">
+                            Allocate
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="bg-[#1a1a2e] border-[#2a2a3e] text-white">
+                          <DialogHeader>
+                            <DialogTitle className="text-white">Allocate Bed</DialogTitle>
+                            <DialogDescription className="text-gray-400">
+                              Allocate Bed {room.bedNo} to a patientID
+                            </DialogDescription>
+                          </DialogHeader>
+                          <div className="text-gray-300 space-y-2">
+                            <p><span className="font-semibold text-white">Bed No:</span> {room.bedNo}</p>
+                            <p><span className="font-semibold text-white">Type:</span> {room.type}</p>
+                            <Input className="my-4" placeholder="Patient ID" />
+                          </div>
+                          <Button className=" bg-purple-600 hover:bg-purple-500 text-white !w-[120px]">
+                            Allocate
+                          </Button>
                         </DialogContent>
                       </Dialog>
                     )}
